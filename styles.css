@@ -1,0 +1,190 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: inline-block;
+    width: 120px;
+    font-weight: bold;
+}
+
+input {
+    padding: 8px;
+    width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+select {
+    padding: 8px;
+    width: 218px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.history {
+    margin-top: 30px;
+}
+
+.entry {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.receipt {
+    background: white;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    animation: slideIn 0.5s ease-out;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.receipt:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+}
+
+.receipt-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.receipt-icon {
+    width: 60px;
+    height: 60px;
+    background: #e8f5e9;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.receipt-icon svg {
+    width: 30px;
+    height: 30px;
+    fill: #4CAF50;
+}
+
+.receipt-title {
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #eee;
+}
+
+.receipt-label {
+    color: #666;
+    font-size: 14px;
+}
+
+.receipt-value {
+    font-weight: bold;
+    text-align: right;
+}
+
+.receipt-amount {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px dashed #eee;
+}
+
+.receipt-amount .receipt-value {
+    font-size: 20px;
+    color: #000;
+}
+
+.download-pdf {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 5px;
+    padding: 12px;
+    width: 100%;
+    margin-top: 20px;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.download-pdf:hover {
+    background: #eeeeee;
+    transform: translateY(-2px);
+}
+
+.download-pdf:active {
+    transform: translateY(0);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.form-success {
+    animation: formSuccess 0.5s ease-out;
+}
+
+@keyframes formSuccess {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

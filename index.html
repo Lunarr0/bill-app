@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Havi költségek nyilvántartása">
+    <meta name="theme-color" content="#4CAF50">
+    <title>Havi Költségek</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+    <h1>Havi Költségek Rögzítése</h1>
+    
+    <form id="billForm" onsubmit="handleSubmit(event)">
+        <div class="form-group">
+            <label for="month">Hónap:</label>
+            <select id="month" required>
+                <option value="januar">Január</option>
+                <option value="februar">Február</option>
+                <option value="marcius">Március</option>
+                <option value="aprilis">Április</option>
+                <option value="majus">Május</option>
+                <option value="junius">Június</option>
+                <option value="julius">Július</option>
+                <option value="augusztus">Augusztus</option>
+                <option value="szeptember">Szeptember</option>
+                <option value="oktober">Október</option>
+                <option value="november">November</option>
+                <option value="december">December</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="lakber">Lakbér:</label>
+            <input type="number" id="lakber" required>
+        </div>
+
+        <div class="form-group">
+            <label for="kk">KK:</label>
+            <input type="number" id="kk" required>
+        </div>
+
+        <div class="form-group">
+            <label for="gaz">Gáz:</label>
+            <input type="number" id="gaz" required>
+        </div>
+
+        <div class="form-group">
+            <label for="villany">Villany:</label>
+            <input type="number" id="villany" required>
+        </div>
+
+        <div class="form-group">
+            <label for="viz">Víz:</label>
+            <input type="number" id="viz" required>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Megjegyzés:</label>
+            <input type="text" id="notes">
+        </div>
+
+        <button type="submit">Mentés</button>
+    </form>
+
+    <div class="history">
+        <h2>Korábbi Befizetések</h2>
+        <div id="previousEntries"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src=
