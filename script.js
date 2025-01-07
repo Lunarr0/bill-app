@@ -1,8 +1,42 @@
-// Add error handling for Supabase initialization
-const supabase = createClient(
-    'https://xwcooeurgfyivmairiwk.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3Y29vZXVyZ2Z5aXZtYWlyaXdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYyMzc3MDMsImV4cCI6MjA1MTgxMzcwM30.IkhShRuu5Vy5hE4fJtIEltM9rt1m651E2liIhIJ-uRk'
-);
+// Wait for Supabase to load
+let supabaseInstance;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Supabase client
+    supabaseInstance = supabase.createClient(
+        'https://xwcooeurgfyivmairiwk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3Y29vZXVyZ2Z5aXZtYWlyaXdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYyMzc3MDMsImV4cCI6MjA1MTgxMzcwM30.IkhShRuu5Vy5hE4fJtIEltM9rt1m651E2liIhIJ-uRk'
+    );
+
+    // Test connection
+    testConnection();
+    // Initialize display
+    displayPreviousEntries();
+});
+
+// Test connection function
+async function testConnection() {
+    try {
+        const { data, error } = await supabaseInstance
+            .from('payments')
+            .select('*', { count: 'exact' });
+
+        if (error) {
+            console.error('Database connection error:', error);
+            showSuccessMessage('Adatbázis kapcsolódási hiba!', true);
+            return;
+        }
+        
+        if (data) {
+            console.log('Database connected successfully. Total records:', data.length);
+        } else {
+            console.error('Unexpected data format:', data);
+        }
+    } catch (error) {
+        console.error('Connection test failed:', error);
+        showSuccessMessage('Adatbázis kapcsolódási hiba!', true);
+    }
+}
 
 // Add form validation
 function validateForm(formData) {
@@ -14,43 +48,54 @@ function validateForm(formData) {
     return null;
 }
 
-// Update handleSubmit with validation
+// Update handleSubmit function
 async function handleSubmit(event) {
     event.preventDefault();
     
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    submitButton.classList.add('loading');
+    
     const formData = {
         month: document.getElementById('month').value,
-        lakber: Number(document.getElementById('lakber').value),
-        kk: Number(document.getElementById('kk').value),
-        gaz: Number(document.getElementById('gaz').value),
-        villany: Number(document.getElementById('villany').value),
-        viz: Number(document.getElementById('viz').value),
-        notes: document.getElementById('notes').value,
-        reference_number: Math.random().toString().substring(2, 15),
+        lakber: Number(document.getElementById('lakber').value) || 0,
+        kk: Number(document.getElementById('kk').value) || 0,
+        gaz: Number(document.getElementById('gaz').value) || 0,
+        villany: Number(document.getElementById('villany').value) || 0,
+        viz: Number(document.getElementById('viz').value) || 0,
+        notes: document.getElementById('notes').value || '',
+        reference_number: Math.random().toString(36).substring(2, 15),
         created_at: new Date().toISOString()
     };
 
-    // Validate form data
-    const validationError = validateForm(formData);
-    if (validationError) {
-        showSuccessMessage(validationError, true);
-        return;
-    }
-
     try {
-        const { data, error } = await supabase
+        console.log('Attempting to save:', formData);
+        
+        const validationError = validateForm(formData);
+        if (validationError) {
+            showSuccessMessage(validationError, true);
+            submitButton.classList.remove('loading');
+            return;
+        }
+
+        const { data, error } = await supabaseInstance
             .from('payments')
             .insert([formData])
             .select();
 
-        if (error) throw error;
-        
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }
+
+        console.log('Save successful:', data);
         event.target.reset();
-        displayPreviousEntries();
+        await displayPreviousEntries();
         showSuccessMessage('Fizetés sikeresen mentve!');
     } catch (error) {
-        console.error('Error:', error);
-        showSuccessMessage('Hiba történt a mentés során!', true);
+        console.error('Save failed:', error);
+        showSuccessMessage(error.message || 'Hiba történt a mentés során!', true);
+    } finally {
+        submitButton.classList.remove('loading');
     }
 }
 
@@ -67,7 +112,7 @@ window.addEventListener('offline', () => {
 // Update displayPreviousEntries function
 async function displayPreviousEntries() {
     try {
-        const { data: payments, error } = await supabase
+        const { data: payments, error } = await supabaseInstance
             .from('payments')
             .select('*')
             .order('created_at', { ascending: false });
@@ -75,7 +120,11 @@ async function displayPreviousEntries() {
         if (error) throw error;
         
         const container = document.getElementById('previousEntries');
-        
+        if (!payments || payments.length === 0) {
+            container.innerHTML = '<p>Nincsenek korábbi befizetések.</p>';
+            return;
+        }
+
         container.innerHTML = payments.map(entry => {
             const total = entry.lakber + entry.kk + entry.gaz + entry.villany + entry.viz;
             const date = new Date(entry.created_at);
@@ -160,7 +209,7 @@ async function displayPreviousEntries() {
             `;
         }).join('');
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Display error:', error);
         document.getElementById('previousEntries').innerHTML = 
             '<p class="error">Hiba történt az adatok betöltése során.</p>';
     }
@@ -453,7 +502,7 @@ function shareReceipt(entry) {
     });
 }
 
-// Display existing entries when page loads
+// Single event listener for initialization
 document.addEventListener('DOMContentLoaded', displayPreviousEntries);
 
 // Add success message function
