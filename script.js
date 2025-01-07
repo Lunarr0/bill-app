@@ -8,27 +8,27 @@ document.addEventListener('DOMContentLoaded', async function() {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3Y29vZXVyZ2Z5aXZtYWlyaXdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYyMzc3MDMsImV4cCI6MjA1MTgxMzcwM30.IkhShRuu5Vy5hE4fJtIEltM9rt1m651E2liIhIJ-uRk'
     );
 
-    // Test the connection immediately
     try {
+        // Test connection
         const { data, error } = await supabaseInstance
             .from('payments')
             .select('*')
             .limit(1);
         
-        console.log('Connection test results:', {
-            success: !error,
-            data: data,
-            error: error,
-            url: window.location.href
+        if (error) throw error;
+        
+        console.log('Supabase Connection Test:', {
+            success: true,
+            url: window.location.href,
+            data: data
         });
-    } catch (err) {
-        console.error('Connection test failed:', err);
-    }
 
-    // Test connection
-    testConnection();
-    // Initialize display
-    displayPreviousEntries();
+        // Initialize display only after successful connection
+        await displayPreviousEntries();
+    } catch (err) {
+        console.error('Supabase Connection Error:', err);
+        showSuccessMessage('Adatbázis kapcsolódási hiba!', true);
+    }
 });
 
 // Test connection function
@@ -72,57 +72,37 @@ async function handleSubmit(event) {
     const submitButton = event.target.querySelector('button[type="submit"]');
     submitButton.classList.add('loading');
     
-    const formData = {
-        month: document.getElementById('month').value,
-        lakber: Number(document.getElementById('lakber').value) || 0,
-        kk: Number(document.getElementById('kk').value) || 0,
-        gaz: Number(document.getElementById('gaz').value) || 0,
-        villany: Number(document.getElementById('villany').value) || 0,
-        viz: Number(document.getElementById('viz').value) || 0,
-        notes: document.getElementById('notes').value || '',
-        reference_number: Math.random().toString(36).substring(2, 15),
-        created_at: new Date().toISOString()
-    };
-
     try {
-        console.log('Attempting to save form data:', formData);  // Debug log 1
-        
+        const formData = {
+            month: document.getElementById('month').value,
+            lakber: Number(document.getElementById('lakber').value) || 0,
+            kk: Number(document.getElementById('kk').value) || 0,
+            gaz: Number(document.getElementById('gaz').value) || 0,
+            villany: Number(document.getElementById('villany').value) || 0,
+            viz: Number(document.getElementById('viz').value) || 0,
+            notes: document.getElementById('notes').value || '',
+            reference_number: Math.random().toString(36).substring(2, 15),
+            created_at: new Date().toISOString()
+        };
+
         const validationError = validateForm(formData);
         if (validationError) {
-            console.log('Validation failed:', validationError);  // Debug log 2
-            showSuccessMessage(validationError, true);
-            submitButton.classList.remove('loading');
-            return;
+            throw new Error(validationError);
         }
 
-        console.log('Validation passed, connecting to Supabase...');  // Debug log 3
-        console.log('Supabase instance:', supabaseInstance);  // Debug log 4
-
-        console.log('Form Data:', formData);  // Add this
-        
         const { data, error } = await supabaseInstance
             .from('payments')
             .insert([formData])
             .select();
 
-        console.log('Response:', { data, error });  // Add this
-        
         if (error) throw error;
 
-        console.log('Supabase response:', { data, error });  // Debug log 5
-        
-        if (error) {
-            console.error('Supabase error:', error);  // Debug log 6
-            throw error;
-        }
-
-        console.log('Save successful:', data);  // Debug log 7
+        console.log('Save successful:', data);
         event.target.reset();
         await displayPreviousEntries();
         showSuccessMessage('Fizetés sikeresen mentve!');
     } catch (error) {
-        console.error('Detailed error:', error);  // Enhanced error logging
-        console.error('Error stack:', error.stack);  // Debug log 9
+        console.error('Error:', error);
         showSuccessMessage(error.message || 'Hiba történt a mentés során!', true);
     } finally {
         submitButton.classList.remove('loading');
