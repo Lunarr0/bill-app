@@ -68,7 +68,7 @@ async function handleSubmit(event) {
     };
 
     try {
-        console.log('Attempting to save:', formData);
+        console.log('Form Data:', formData);
         
         const validationError = validateForm(formData);
         if (validationError) {
@@ -82,17 +82,16 @@ async function handleSubmit(event) {
             .insert([formData])
             .select();
 
-        if (error) {
-            console.error('Supabase error:', error);
-            throw error;
-        }
+        console.log('Response:', { data, error });
+        
+        if (error) throw error;
 
         console.log('Save successful:', data);
         event.target.reset();
         await displayPreviousEntries();
         showSuccessMessage('Fizetés sikeresen mentve!');
     } catch (error) {
-        console.error('Save failed:', error);
+        console.error('Detailed error:', error);
         showSuccessMessage(error.message || 'Hiba történt a mentés során!', true);
     } finally {
         submitButton.classList.remove('loading');
