@@ -1,12 +1,29 @@
 // Wait for Supabase to load
 let supabaseInstance;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Initialize Supabase client
     supabaseInstance = supabase.createClient(
         'https://xwcooeurgfyivmairiwk.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3Y29vZXVyZ2Z5aXZtYWlyaXdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYyMzc3MDMsImV4cCI6MjA1MTgxMzcwM30.IkhShRuu5Vy5hE4fJtIEltM9rt1m651E2liIhIJ-uRk'
     );
+
+    // Test the connection immediately
+    try {
+        const { data, error } = await supabaseInstance
+            .from('payments')
+            .select('*')
+            .limit(1);
+        
+        console.log('Connection test results:', {
+            success: !error,
+            data: data,
+            error: error,
+            url: window.location.href
+        });
+    } catch (err) {
+        console.error('Connection test failed:', err);
+    }
 
     // Test connection
     testConnection();
@@ -81,10 +98,16 @@ async function handleSubmit(event) {
         console.log('Validation passed, connecting to Supabase...');  // Debug log 3
         console.log('Supabase instance:', supabaseInstance);  // Debug log 4
 
+        console.log('Form Data:', formData);  // Add this
+        
         const { data, error } = await supabaseInstance
             .from('payments')
             .insert([formData])
             .select();
+
+        console.log('Response:', { data, error });  // Add this
+        
+        if (error) throw error;
 
         console.log('Supabase response:', { data, error });  // Debug log 5
         
@@ -98,7 +121,7 @@ async function handleSubmit(event) {
         await displayPreviousEntries();
         showSuccessMessage('Fizetés sikeresen mentve!');
     } catch (error) {
-        console.error('Detailed error:', error);  // Debug log 8
+        console.error('Detailed error:', error);  // Enhanced error logging
         console.error('Error stack:', error.stack);  // Debug log 9
         showSuccessMessage(error.message || 'Hiba történt a mentés során!', true);
     } finally {
